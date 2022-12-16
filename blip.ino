@@ -18,7 +18,8 @@ uint8_t speedLeft = 0;
 uint8_t speedRight = 0;
 
 // speed controller pot
-const uint8_t READ_PIN = A0;
+const uint8_t READ_PIN_L = A0;
+const uint8_t READ_PIN_R = A1;
 
 void setup() {
   // put your setup code here, to run once:
@@ -33,21 +34,39 @@ void setup() {
 
 void loop() {
   // read speed pot
-  uint16_t speedPot = analogRead(READ_PIN);
+  uint16_t speedPotLeft = analogRead(READ_PIN_L);
+  uint16_t speedPotRight = analogRead(READ_PIN_R);
 
   // set the left wheel speed (debug)
-  speedLeft = map(speedPot,0,1023,0,255)
+  if(speedPotLeft < 50) {
+    speedLeft = 0;
+  } else {
+    speedLeft = map(speedPotLeft,0,1023,20,255);
+  }
+
+  if(speedPotRight < 50) {
+    speedRight = 0;
+  } else {
+    speedRight = map(speedPotRight,0,1023,20,255);
+  }
 
   //Controlling speed (0 = off and 255 = max speed):
   analogWrite(9, speedLeft); //ENA pin
   analogWrite(10, speedRight); //ENB pin
 
   //Controlling spin direction of motors:
+  leftForward();
+  rightForward();
+  delay(100);
+
+
+
+/*
   uint8_t count = 50;
 
   while(count < 255) {
-    speedLeft = count;
-    count ++;
+    speedLeft = speedPot;
+    //count ++;
     leftForward();
     analogWrite(ENA,speedLeft);
     delay(100);
@@ -55,13 +74,14 @@ void loop() {
   delay(1000);
 
   while(count > 50) {
-    speedLeft = count;
-    count --;
+    speedLeft = speedPot;
+    //count --;
     leftReverse();
     analogWrite(ENA,speedLeft);
     delay(100);
   }
   delay(1000);
+  */
 }
 
 void leftForward() {
